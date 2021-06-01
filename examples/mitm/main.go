@@ -53,13 +53,13 @@ func main() {
 	mitmConfig.SetOrganization("gomitmproxy")  // cert organization
 
 	// GENERATE A CERT FOR HTTP OVER TLS PROXY
-	proxyCert, err := mitmConfig.GetOrCreateCert("127.0.0.1")
-	if err != nil {
-		panic(err)
-	}
-	tlsConfig := &tls.Config{
-		Certificates: []tls.Certificate{*proxyCert},
-	}
+	//proxyCert, err := mitmConfig.GetOrCreateCert("127.0.0.1")
+	//if err != nil {
+	//	panic(err)
+	//}
+	//	tlsConfig := &tls.Config{
+	//		Certificates: []tls.Certificate{*proxyCert},
+	//	}
 
 	// PREPARE PROXY
 	addr := &net.TCPAddr{
@@ -69,11 +69,11 @@ func main() {
 
 	proxy := gomitmproxy.NewProxy(gomitmproxy.Config{
 		ListenAddr: addr,
-		TLSConfig:  tlsConfig,
+		//		TLSConfig:  tlsConfig,
 
-		Username: "user",
-		Password: "pass",
-		APIHost:  "gomitmproxy",
+		//		Username: "user",
+		//		Password: "pass",
+		//		APIHost:  "gomitmproxy",
 
 		MITMConfig:     mitmConfig,
 		MITMExceptions: []string{"example.com"},
@@ -101,11 +101,12 @@ func onRequest(session *gomitmproxy.Session) (*http.Request, *http.Response) {
 
 	log.Printf("onRequest: %s %s", req.Method, req.URL.String())
 
-	if req.URL.Host == "example.net" {
-		body := strings.NewReader("<html><body><h1>Replaced response</h1></body></html>")
-		res := proxyutil.NewResponse(http.StatusOK, body, req)
+	if req.URL.Host == "www.sohu.com" {
+		body := strings.NewReader("<html></html>")
+		res := proxyutil.NewResponse(http.StatusFound, body, req)
 		res.Header.Set("Content-Type", "text/html")
-		session.SetProp("blocked", true)
+		res.Header.Set("Location", "https://www.baidu.com")
+		//session.SetProp("blocked", true)
 		return nil, res
 	}
 
